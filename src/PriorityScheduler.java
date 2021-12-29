@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
-
+import java.util.Scanner;
 
 
 public class PriorityScheduler {
@@ -102,12 +102,17 @@ public class PriorityScheduler {
 
     public static void main(String[] args) {
         PriorityScheduler priorityScheduler = new PriorityScheduler(-1);
-        priorityScheduler.addToReady(new Process("p1", 3, 10, -1));
-        priorityScheduler.addToReady(new Process("p2", 1, 1, -1));
-        priorityScheduler.addToReady(new Process("p3", 4, 2, -1));
-        priorityScheduler.addToReady(new Process("p4", 5, 1, -1));
-        priorityScheduler.addToReady(new Process("p5", 2, 5, -1));
-
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Number of processes -> ");
+        int procNum = scan.nextInt();
+        System.out.println("Enter processes names, arrival times, burst times and priority");
+        for (int i = 0; i < procNum; i++){
+            String name = scan.next();
+            int arrival = scan.nextInt();
+            int burst = scan.nextInt();
+            int prio = scan.nextInt();
+            priorityScheduler.addToReady(new Process(name, prio, burst, arrival));
+        }
         priorityScheduler.invokeScheduler();
     }
 }

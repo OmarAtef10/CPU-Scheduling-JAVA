@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Scanner;
 
 public class SRTF {
     private ArrayList<Process> _readyQueue;
@@ -104,73 +105,19 @@ public class SRTF {
 
     public static void main(String[] args) {
         SRTF srtf = new SRTF();
-        srtf.addToWaiting(new Process("p1", 0, 7, 0));
-        srtf.addToWaiting(new Process("p2", 0, 4, 2));
-        srtf.addToWaiting(new Process("p3", 0, 1, 4));
-        srtf.addToWaiting(new Process("p4", 0, 4, 5));
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Number of processes -> ");
+        int procNum = scan.nextInt();
+        System.out.println("Enter processes names, priority, burst times and arrival time");
+        for (int i = 0; i < procNum; i++){
+            String name = scan.next();
+            int prio = scan.nextInt();
+            int burst = scan.nextInt();
+            int arrival = scan.nextInt();
+            srtf.addToWaiting(new Process(name, prio, burst, arrival));
+        }
 
         srtf.schedule();
     }
 }
 
-class Process{
-    String name;
-    int priority;
-    int burstTime;
-    int arrivalTime;
-    int waitingTime;
-    int turnaroundTime;
-    int burstTimeStore;
-
-    static class PrioritySorter implements Comparator<Process> {
-        @Override
-        public int compare(Process obj1, Process obj2){
-            if(obj1.priority >= obj2.priority)
-                return 1;
-            return -1;
-        }
-    }
-
-    static class ArrivalTimeSorter implements Comparator<Process>{
-        @Override
-        public int compare(Process obj1, Process obj2){
-            if(obj1.arrivalTime >= obj2.arrivalTime)
-                return 1;
-            return -1;
-        }
-    }
-
-    static class JobTimeSorter implements Comparator<Process>{
-        @Override
-        public int compare(Process obj1, Process obj2){
-            if(obj1.burstTime >= obj2.burstTime)
-                return 1;
-            return -1;
-        }
-    }
-
-    public Process(String _name, int _prio, int _burstTime, int _arrivalTime){
-        name = _name;
-        priority = _prio;
-        burstTime = _burstTime;
-        arrivalTime = _arrivalTime;
-        waitingTime = 0;
-        turnaroundTime = 0;
-        burstTimeStore = _burstTime;
-    }
-
-    public void ageProcess(){
-        if(priority == 0)
-            return;
-        priority--;
-    }
-
-    // @Override
-    // public String toString() {
-    //     return "[" + _name + ", " + _priority + "]";
-    // }
-    @Override
-    public String toString() {
-        return "[" + name + "]";
-    }
-}

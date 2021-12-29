@@ -1,16 +1,16 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Scanner;
 
-class AGAT_Process {
+/*class AGAT_Process {
     String p_name;
     int burstTime;
+    int remainingBurstTime;
     int arrivalTime;
     int priority;
     int quantum;
     double factor;
-    public int completeTime; // current burst + totalTime
+    public int completeTime;
     public int turnAroundTime; //CompleteTime - Arrival Time
     public int waitingTime; // Turn Around Time - Burst Time
     int prevQuantum;
@@ -21,45 +21,55 @@ class AGAT_Process {
         this.arrivalTime = arrivalTime;
         this.quantum = quantum;
         this.burstTime = burstTime;
+        this.remainingBurstTime = burstTime;
         this.factor = 0.0;
         this.prevQuantum = quantum;
     }
 
     @Override
     public String toString() {
-        return "PName: " + p_name + " Burst Time: " + burstTime + " Arrival Time:" + arrivalTime +
-                " Priority: " + priority + " Quantum: " + quantum + " Factor: " + factor;
+        return "PName: " + p_name + ", Burst Time: " + burstTime + ", Arrival Time: " + arrivalTime +
+                ", Priority: " + priority + ", Quantum: " + quantum + ", Factor: " + factor;
     }
-}
+}*/
 
 public class AGAT {
-    private List<AGAT_Process> readyQueue;
-    private List<AGAT_Process> waitingQueue;
-    public ArrayList<AGAT_Process> processes;
+    private List<Process> readyQueue;
+    private List<Process> waitingQueue;
+    private ArrayList<String> processTimeLine;
+    private ArrayList<Integer> timeLine;
+    public ArrayList<Process> processes;
 
     public AGAT() {
         this.processes = new ArrayList<>();
         this.readyQueue = new ArrayList<>();
         this.waitingQueue = new ArrayList<>();
+        this.processTimeLine = new ArrayList<>();
+        this.timeLine = new ArrayList<>();
     }
 
     public static void main(String[] args) {
         AGAT agat = new AGAT();
-        AGAT_Process p1 = new AGAT_Process("P1", 17, 0, 4, 4);
-        AGAT_Process p2 = new AGAT_Process("P2", 6, 3, 9, 3);
-        AGAT_Process p3 = new AGAT_Process("P3", 10, 4, 3, 5);
-        AGAT_Process p4 = new AGAT_Process("P4", 4, 29, 8, 2);
-        agat.processes.add(p1);
-        agat.processes.add(p2);
-        agat.processes.add(p3);
-        agat.processes.add(p4);
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Number of processes -> ");
+        int procNum = scan.nextInt();
+        System.out.println("Enter processes names, arrival times, burst times, priority and quantum");
+        for (int i = 0; i < procNum; i++){
+            String name = scan.next();
+            int arrival = scan.nextInt();
+            int burst = scan.nextInt();
+            int prio = scan.nextInt();
+            int quantum = scan.nextInt();
+            agat.processes.add(new Process(name, burst, arrival, prio, quantum));
+        }
+
 
         agat.schedule();
     }
 
     public int getMaxArrival() {
         int maxArrival = 0;
-        for (AGAT_Process process : processes) {
+        for (Process process : processes) {
             if (process.arrivalTime > maxArrival) {
                 maxArrival = process.arrivalTime;
             }
@@ -69,18 +79,18 @@ public class AGAT {
 
     public int getMaxBurst() {
         int maxBurst = 0;
-        for (AGAT_Process process : readyQueue) {
-            if (process.burstTime > maxBurst) {
-                maxBurst = process.burstTime;
+        for (Process process : readyQueue) {
+            if (process.remainingBurstTime > maxBurst) {
+                maxBurst = process.remainingBurstTime;
             }
         }
         return maxBurst;
     }
 
-    public AGAT_Process getBestFactor() {
-        AGAT_Process current = null;
+    public Process getBestFactor() {
+        Process current = null;
         double min = Double.MAX_VALUE;
-        for (AGAT_Process process : readyQueue) {
+        for (Process process : readyQueue) {
             if (process.factor < min) {
                 min = process.factor;
                 current = process;
@@ -109,11 +119,11 @@ public class AGAT {
         return v2;
     }
 
-    public double getFactor(AGAT_Process process, double V1) {
+    public double getFactor(Process process, double V1) {
         double factor = 0.0;
 
         double f1 = Math.ceil(process.arrivalTime / V1);
-        double f2 = Math.ceil(process.burstTime / updateV2());
+        double f2 = Math.ceil(process.remainingBurstTime / updateV2());
         factor = (10 - process.priority)
                 + f1 + f2;
 
@@ -121,7 +131,7 @@ public class AGAT {
     }
 
     public void updateFactors() {
-        for (AGAT_Process process : readyQueue) {
+        for (Process process : readyQueue) {
             process.factor = getFactor(process, getV1());
         }
     }
@@ -131,12 +141,9 @@ public class AGAT {
         for (int i = 0; i < readyQueue.size(); i++) {
             readyQueue.get(i).factor = getFactor(readyQueue.get(i), V1);
         }
-        printTable();
-
 
         int currentTime = 0;
-        AGAT_Process currentProcess = null;
-        boolean isNewProcess = true;
+        Process currentProcess = null;
         int tempQuantum = 0;
 
         waitingQueue.addAll(processes);
@@ -145,41 +152,33 @@ public class AGAT {
 
             checkForNewArrivals(currentTime);
             updateFactors();
+            printTable();
 
             if (currentProcess == null) {
                 currentProcess = getBestFactor();
+                timeLine.add(currentTime);
                 tempQuantum = (int) Math.round(currentProcess.quantum * 0.4);
 
             }
-            // else if(currentProcess != newProcess){
-            //     currentProcess.quantum = currentProcess.prevQuantum + 2;
-            //     currentProcess.prevQuantum = currentProcess.quantum;
-            //     // readyQueue.add(currentProcess);
-            //     currentProcess = newProcess;
-            //     tempQuantum = (int) Math.round(currentProcess.quantum * 0.4);
-            // }
-            // readyQueue.remove(currentProcess);
-
-            // if(isNewProcess)
-            // tempQuantum = (int) Math.round(currentProcess.quantum * 0.4);
 
             for (int quant = 0; quant < currentProcess.prevQuantum; quant++) {
 
                 if (tempQuantum <= 0) {
-                    AGAT_Process newProcess = getBestFactor();
+                    Process newProcess = getBestFactor();
                     if (currentProcess != newProcess) {
                         currentProcess.quantum = currentProcess.prevQuantum + 2;
                         currentProcess.prevQuantum = currentProcess.quantum;
                         readyQueue.remove(currentProcess);
                         readyQueue.add(currentProcess);
-                        // readyQueue.add(currentProcess);
+                        timeLine.add(currentTime);
+                        processTimeLine.add(currentProcess.name);
                         currentProcess = newProcess;
                         tempQuantum = (int) Math.round(currentProcess.quantum * 0.4);
                         break;
                     }
                 }
                 currentProcess.quantum--;
-                currentProcess.burstTime--;
+                currentProcess.remainingBurstTime--;
                 tempQuantum--;
                 currentTime++;
 
@@ -188,18 +187,26 @@ public class AGAT {
                     currentProcess.prevQuantum = currentProcess.quantum;
                     readyQueue.remove(currentProcess);
                     readyQueue.add(currentProcess);
+                    if (readyQueue.size() != 1) {
+                        timeLine.add(currentTime);
+                        processTimeLine.add(currentProcess.name);
+                    }
                     currentProcess = readyQueue.get(0);
                     tempQuantum = (int) Math.round(currentProcess.quantum * 0.4);
                     break;
                 }
 
-                if (currentProcess.burstTime == 0) {
+                if (currentProcess.remainingBurstTime == 0) {
                     readyQueue.remove(currentProcess);
+                    timeLine.add(currentTime);
+                    processTimeLine.add(currentProcess.name);
+                    currentProcess.completeTime = currentTime;
+                    currentProcess.turnaroundTime = currentProcess.completeTime - currentProcess.arrivalTime;
+                    currentProcess.waitingTime = currentProcess.turnaroundTime - currentProcess.burstTime;
                     try {
                         currentProcess = readyQueue.get(0);
                     }catch (Exception e){
-                        System.out.println("ReadyQueue is Empty");
-                        currentProcess=null;
+                        currentProcess = null;
                         break;
                     }
                     tempQuantum = (int) Math.round(currentProcess.quantum * 0.4);
@@ -208,18 +215,16 @@ public class AGAT {
 
                 checkForNewArrivals(currentTime);
             }
-
-
-            // printTable();
-            System.out.println(updateV2());
         }
-
+        timeLine.add(currentTime);
+        printTime();
+        printTimeLine();
 
     }
 
     private void checkForNewArrivals(int currentTime) {
         while (!waitingQueue.isEmpty()) {
-            AGAT_Process temp = waitingQueue.get(0);
+            Process temp = waitingQueue.get(0);
             if (temp.arrivalTime == currentTime) {
                 waitingQueue.remove(0);
                 readyQueue.add(temp);
@@ -232,8 +237,39 @@ public class AGAT {
 
     public void printTable() {
         updateFactors();
-        for (AGAT_Process process : processes) {
-            System.out.println(process.toString());
+        for (Process process : processes) {
+            if (!waitingQueue.contains(process))
+                System.out.println(printProcess(process));
         }
+        System.out.println("========================================================================");
+    }
+
+    public void printTime(){
+        double averageWaitingTime = 0;
+        double averageTurnaroundTime = 0;
+        int size = processes.size();
+        for (Process process : processes){
+            System.out.println("PName: " + process.name + ", Waiting Time: " + process.waitingTime + ", Turnaround Time: " + process.turnaroundTime);
+            averageWaitingTime += process.waitingTime;
+            averageTurnaroundTime += process.turnaroundTime;
+        }
+        if (size > 0){
+            System.out.println("Average Waiting Time: " + averageWaitingTime / size + ", Average Turnaround Time: " + averageTurnaroundTime / size);
+            System.out.println("========================================================================");
+        }
+    }
+
+    void printTimeLine(){
+        int i = 0;
+        while (i < processTimeLine.size()){
+            System.out.print(timeLine.get(i) + " " + processTimeLine.get(i) + " ");
+            i++;
+        }
+        System.out.println(timeLine.get(i));
+    }
+
+    String printProcess(Process process){
+        return "PName: " + process.name + ", Burst Time: " + process.burstTime + ", Arrival Time: " + process.arrivalTime +
+                ", Priority: " + process.priority + ", Quantum: " + process.quantum + ", Factor: " + process.factor;
     }
 }
