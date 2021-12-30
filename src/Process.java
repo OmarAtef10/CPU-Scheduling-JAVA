@@ -14,6 +14,7 @@ class Process {
     int quantum;
     double factor;
     int prevQuantum;
+    int age = 0;
 
     static class PrioritySorter implements Comparator<Process> {
         @Override

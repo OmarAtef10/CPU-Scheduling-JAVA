@@ -4,6 +4,7 @@ import java.util.*;
 
 public class SJF {
 
+    public int ageLimit = 10;
 
     public static void main(String[] args) {
         SJF sjf = new SJF();
@@ -58,10 +59,26 @@ public class SJF {
             }
             Collections.sort(arrived,new Process.JobTimeSorter());
             for(int k=0; k<arrived.size(); k++){
+                int maxAge = 0;
+                int index = -1;
+                for (int x = 0; x < processes.size(); x++){
+                    Process proc = processes.get(x);
+                    if (proc.age > this.ageLimit && !proc.completed && proc.age > maxAge){
+                        maxAge = proc.age;
+                        index = x;
+                    }
+                }
+                if (index != -1){
+                    startProcess(processes.get(index), totalTime);
+                    this.ageLimit += 10;
+                }
                 startProcess(arrived.get(k),totalTime);
                 totalTime+= arrived.get(k).burstTime;
             }
             arrived.clear();
+            for (Process process : processes){
+                process.age = totalTime - process.arrivalTime;
+            }
         }
     }
 
