@@ -23,7 +23,8 @@ public class SJF {
 
         }
 
-        Collections.sort(processes, new Process.SJFTimeSorter());
+        Collections.sort(processes, new Process.ArrivalTimeSorter());
+        Collections.sort(processes, new Process.JobTimeSorter());
         sjf.SJF_Scheduling(processes);
 
         Double avgWaiting = 0.0, avgTurnAround = 0.0;
@@ -40,25 +41,25 @@ public class SJF {
 
     public void SJF_Scheduling(ArrayList<Process> processes) {
         List<Process> arrived = new ArrayList<>();
-        int totalTime = 0;
+        int totalTime=0;
 
-        for (int i = 0; i < processes.size(); i++) {
+        for(int i=0; i<processes.size(); i++) {
             Process p = processes.get(i);
-            if (p.completed) {
+            if(p.completed){
                 continue;
             }
-            startProcess(p, totalTime);
-            totalTime += p.burstTime;
-            for (int j = i + 1; j < processes.size(); j++) {
-                if (processes.get(j).arrivalTime < totalTime) {
+            startProcess(p,totalTime);
+            totalTime+= p.burstTime;
+            for(int j=i+1; j<processes.size(); j++){
+                if(processes.get(j).arrivalTime < totalTime && !processes.get(j).completed){
                     arrived.add(processes.get(j));
                     processes.get(j).completed = true;
                 }
             }
-            Collections.sort(arrived, new Process.JobTimeSorter());
-            for (int k = 0; k < arrived.size(); k++) {
-                startProcess(arrived.get(k), totalTime);
-                totalTime += arrived.get(k).burstTime;
+            Collections.sort(arrived,new Process.JobTimeSorter());
+            for(int k=0; k<arrived.size(); k++){
+                startProcess(arrived.get(k),totalTime);
+                totalTime+= arrived.get(k).burstTime;
             }
             arrived.clear();
         }
