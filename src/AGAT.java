@@ -2,37 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-/*class AGAT_Process {
-    String p_name;
-    int burstTime;
-    int remainingBurstTime;
-    int arrivalTime;
-    int priority;
-    int quantum;
-    double factor;
-    public int completeTime;
-    public int turnAroundTime; //CompleteTime - Arrival Time
-    public int waitingTime; // Turn Around Time - Burst Time
-    int prevQuantum;
-
-    AGAT_Process(String p_name, int burstTime, int arrivalTime, int priority, int quantum) {
-        this.p_name = p_name;
-        this.priority = priority;
-        this.arrivalTime = arrivalTime;
-        this.quantum = quantum;
-        this.burstTime = burstTime;
-        this.remainingBurstTime = burstTime;
-        this.factor = 0.0;
-        this.prevQuantum = quantum;
-    }
-
-    @Override
-    public String toString() {
-        return "PName: " + p_name + ", Burst Time: " + burstTime + ", Arrival Time: " + arrivalTime +
-                ", Priority: " + priority + ", Quantum: " + quantum + ", Factor: " + factor;
-    }
-}*/
-
 public class AGAT {
     private List<Process> readyQueue;
     private List<Process> waitingQueue;
